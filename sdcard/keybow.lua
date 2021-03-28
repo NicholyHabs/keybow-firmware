@@ -1,6 +1,7 @@
-require "keyboards/english" -- Change name of language to change keyboard layout. Available layouts are "belgian_french", "danish", "english" and "norwegian"
-
 keybow = {}
+
+local KEYCODES         = "abcdefghijklmnopqrstuvwxyz1234567890\n\a\b\t -=[]\\#;'`,./"
+local SHIFTED_KEYCODES = "ABCDEFGHIJKLMNOPQRSTUVWXYZ!@#$%^&*()\a\a\a\a\a_+{}|~:\"~<>?"
 
 keybow.LEFT_CTRL = 0
 keybow.LEFT_SHIFT = 1
@@ -44,19 +45,6 @@ keybow.F10 = 0x43
 keybow.F11 = 0x44
 keybow.F12 = 0x45
 
-keybow.F13 = 0x68
-keybow.F14 = 0x69
-keybow.F15 = 0x6a
-keybow.F16 = 0x6b
-keybow.F17 = 0x6c
-keybow.F18 = 0x6d
-keybow.F19 = 0x6e
-keybow.F20 = 0x6f
-keybow.F21 = 0x70
-keybow.F22 = 0x71
-keybow.F23 = 0x72
-keybow.F24 = 0x73
-
 keybow.KEY_DOWN = true
 keybow.KEY_UP = false
 
@@ -69,10 +57,6 @@ keybow.MEDIA_MUTE = 5
 keybow.MEDIA_VOL_UP = 6
 keybow.MEDIA_VOL_DOWN = 7
 
-keybow.MOUSE_LMB = 0
-keybow.MOUSE_RMB = 1
-keybow.MOUSE_MMB = 2
-
 -- Functions exposed from C
 
 function keybow.set_modifier(key, state)
@@ -83,14 +67,6 @@ function keybow.set_media_key(key, state)
     keybow_set_media_key(key, state)
 end
 
-function keybow.set_mouse_button(button, state)
-    keybow_set_mousebutton(button, state)
-end
-
-function keybow.set_mouse_movement(x, y)
-    keybow_set_mousemove(x, y)
-end
-
 function keybow.sleep(time)
     keybow_sleep(time)
 end
@@ -99,22 +75,12 @@ function keybow.usleep(time)
     keybow_usleep(time)
 end
 
-function keybow.ascii_text(text)
+function keybow.text(text)
     for i = 1, #text do        
         local c = text:sub(i, i)
         keybow.tap_key(c)
     end
 
-    keybow.set_modifier(keybow.RIGHT_ALT, false)
-    keybow.set_modifier(keybow.LEFT_SHIFT, false)
-end
-
-function keybow.text(text)
-    for uchar in string.gmatch(text, "([%z\1-\127\194-\244][\128-\191]*)") do
-        keybow.tap_key(uchar)
-    end
-
-    keybow.set_modifier(keybow.RIGHT_ALT, false)
     keybow.set_modifier(keybow.LEFT_SHIFT, false)
 end
 
@@ -208,31 +174,20 @@ function keybow.ascii_to_hid(key)
     return code + 3
 end
 
-function keybow.find_keycode(keycode_map, keycode)
-    for k, v in ipairs(keycode_map) do
-        if v == keycode then return k end
-    end
-    return nil
-end
-
 function keybow.set_key(key, pressed)
     if type(key) == "string" then
-        local normal = keybow.find_keycode(KEYCODES, key)
-        local shifted = keybow.find_keycode(SHIFTED_KEYCODES, key)
-        local altgred = keybow.find_keycode(ALTGRD_KEYCODES, key)
-        local shiftaltgred = keybow.find_keycode(SHIFTALTGRD_KEYCODES, key)
+        local hid_code = nil
+        local shifted = SHIFTED_KEYCODES:find(key, 1, true) ~= nil
 
-        local hid_code = shiftaltgred or shifted or altgred or normal
-
-        if shiftaltgred then
-            shifted = true
-            altgred = true
+        if shifted then
+            hid_code = SHIFTED_KEYCODES:find(key, 1, true)
+        else
+            hid_code = KEYCODES:find(key, 1, true)
         end
 
         if not (hid_code == nil) then
             hid_code = hid_code + 3
             if shifted then keybow.set_modifier(keybow.LEFT_SHIFT, pressed) end
-            if altgred then keybow.set_modifier(keybow.RIGHT_ALT, pressed) end
             keybow_set_key(hid_code, pressed)
         end
 

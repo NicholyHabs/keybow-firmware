@@ -50,6 +50,10 @@ function mac_snippets.emoji_picker()
     modifier(keybow.SPACE, keybow.LEFT_CTRL, keybow.LEFT_META)
 end
 
+function mac_snippets.paste()
+    modifier(keybow.LEFT_META, "P")
+end
+
 -- View shortcuts --
 
 function mac_snippets.switch_app()
@@ -98,7 +102,7 @@ function mac_snippets.soft_delete()
     modifier(keybow.BACKSPACE, keybow.LEFT_META)
 end
 
-function mac_snippets.hard_delete()
+    function mac_snippets.hard_delete()
     modifier(keybow.BACKSPACE, keybow.LEFT_META, keybow.LEFT_ALT)
 end
 
@@ -129,18 +133,20 @@ function mac_snippets.screenshot_window()
     keybow.tap_space()
 end
 
--- Safari shortcuts --
+-- Safari / Chrome shortcuts --
 
 function mac_snippets.next_safari_tab()
     modifier(keybow.TAB, keybow.LEFT_CTRL)
 end
-
-function mac_snippets.prev_safari_tab()
+    function mac_snippets.prev_safari_tab()
     modifier(keybow.TAB, keybow.LEFT_CTRL, keybow.LEFT_SHIFT)
 end
 
 function mac_snippets.reopen_safari_tab()
     modifier("t", keybow.LEFT_META, keybow.LEFT_SHIFT)
+end
+function mac_snippets.new_tab()
+    modifier("t", keybow.LEFT_META)
 end
 
 function mac_snippets.safari_search(term)
@@ -149,6 +155,10 @@ function mac_snippets.safari_search(term)
     keybow.text(term)
     keybow.sleep(500)
     keybow.tap_enter()
+end
+
+function mac_snippets.chrome_jsconsole()
+    modifier("j", keybow.LEFT_META, keybow.LEFT_ALT)
 end
 
 -- Mail shortcuts --
@@ -165,4 +175,10 @@ end
 
 function mac_snippets.reply_mail()
 	modifier("r", keybow.LEFT_META)
+end
+
+function mac_snippets.viewCal()
+    mac_snippets.spotlight("Outlook")
+    keybow.sleep(500)
+    modifier("2", keybow.LEFT_CTRL)
 end
